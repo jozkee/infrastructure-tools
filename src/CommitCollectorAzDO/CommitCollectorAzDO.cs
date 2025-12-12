@@ -107,7 +107,7 @@ public partial class CommitCollectorAzDO
             await ProcessCommitAsync(commit, included, skipped);
         }
 
-        PrintIncludedTable(included, fromCommitId, toCommitId);
+        await PrintIncludedTableAsync(included, fromCommitId, toCommitId);
         PrintSkippedTable(skipped);
         PrintErrors();
     }
@@ -154,7 +154,7 @@ public partial class CommitCollectorAzDO
         }
     }
 
-    private async void PrintIncludedTable(List<(Commit, CommitChanges)> included, string? fromCommitId = null, string? toCommitId = null)
+    private async Task PrintIncludedTableAsync(List<(Commit, CommitChanges)> included, string? fromCommitId = null, string? toCommitId = null)
     {
         var table = new MarkdownTableBuilder().WithHeader("Commit", "Author / Approvers", "Comments", "Validation status");
         foreach ((Commit commit, CommitChanges changes) in included)
@@ -312,7 +312,14 @@ public partial class CommitCollectorAzDO
 public class CommitChanges
 {
     public List<CommitChange>? Changes { get; set; }
-    public int ChangeCounts { get; set; }
+    public CommitChangeCounts? ChangeCounts { get; set; }
+}
+
+public class CommitChangeCounts
+{
+    public int Edit { get; set; }
+    public int Add { get; set; }
+    public int Delete { get; set; }
 }
 
 public class CommitChange
