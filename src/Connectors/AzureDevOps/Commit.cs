@@ -76,5 +76,10 @@ public class CommitOptions
     public string Repo { get; set; } = string.Empty;
     public string BranchName { get; set; } = string.Empty;
     public int Top { get; set; } = -1;
+    
+    // Commit ID filtering
+    public string? FromCommitId { get; set; }
+    public string? ToCommitId { get; set; }
+    
     public Dictionary<string, string> Arguments { get; set; } = new Dictionary<string, string>();
 }

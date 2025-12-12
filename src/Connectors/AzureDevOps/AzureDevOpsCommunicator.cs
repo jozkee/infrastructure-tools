@@ -7,12 +7,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure.Core;
+using Azure.Identity;
 
 namespace InfrastructureTools.Connectors.AzureDevOps;
 
 public class AzureDevOpsCommunicator : IDisposable
 {
-    private readonly string _personalAccessToken;
+    private readonly TokenCredential _credential;
     private readonly string _organization;
     private readonly string _project;
     private readonly HttpClient _httpClient;
@@ -22,25 +24,20 @@ public class AzureDevOpsCommunicator : IDisposable
     internal string Organization => _organization;
     internal string Project => _project;
 
-    public AzureDevOpsCommunicator(string organization, string project, string personalAccessToken)
+    public AzureDevOpsCommunicator(string organization, string project, TokenCredential credential)
     {
         ArgumentException.ThrowIfNullOrEmpty(organization);
         ArgumentException.ThrowIfNullOrEmpty(project);
-        ArgumentException.ThrowIfNullOrEmpty(personalAccessToken);
+        ArgumentNullException.ThrowIfNull(credential);
 
         _organization = organization;
         _project = project;
-        _personalAccessToken = personalAccessToken;
+        _credential = credential;
 
         MediaTypeWithQualityHeaderValue jsonMediaType = new("application/json");
 
-        byte[] bytes = Encoding.ASCII.GetBytes($":{_personalAccessToken}");
-        string base64String = Convert.ToBase64String(bytes);
-        AuthenticationHeaderValue headerValue = new("Basic", base64String);
-
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Accept.Add(jsonMediaType);
-        _httpClient.DefaultRequestHeaders.Authorization = headerValue;
 
         _options = new JsonSerializerOptions()
         {
@@ -57,8 +54,8 @@ public class AzureDevOpsCommunicator : IDisposable
     /// <summary>
     /// Executes an Azure DevOps API query.
     /// </summary>
-    /// <param name="api">Represents the value of the API to invoke.</param>
     /// <returns>The response content of the query.</returns>
+    /// <param name="api">Represents the value of the API to invoke.</param>
     public Task<string> CallAsync(string api, Dictionary<string, string> arguments)
     {
         string query = GetQueryUrl(api, arguments);
@@ -67,6 +64,13 @@ public class AzureDevOpsCommunicator : IDisposable
 
     private async Task<string> CallAsync(string query)
     {
+        // Get and set the bearer token
+        // 499b84ac-1321-427f-aa17-267ca6975798 is Azure DevOps's registered application ID in Azure AD
+        // /.default suffix requests all default permissions for the Azure DevOps resource
+        var tokenRequestContext = new TokenRequestContext(new[] { "499b84ac-1321-427f-aa17-267ca6975798/.default" });
+        var token = await _credential.GetTokenAsync(tokenRequestContext, default);
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
         using HttpResponseMessage response = await _httpClient.GetAsync(query);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
@@ -135,18 +139,46 @@ public class AzureDevOpsCommunicator : IDisposable
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        // TODO: There are other branch search options, for now this is enough
-        //if (string.IsNullOrWhiteSpace(options.BranchName))
+        // Set version type and version if branch name is specified
+        if (!string.IsNullOrWhiteSpace(options.BranchName))
         {
             options.Arguments["searchCriteria.itemVersion.versionType"] = "branch";
             options.Arguments["searchCriteria.itemVersion.version"] = options.BranchName;
         }
-        if (options.Top > 0)
+        
+        // Set from/to commit IDs for filtering
+        if (!string.IsNullOrWhiteSpace(options.FromCommitId))
         {
-            options.Arguments["searchCriteria.$top"] = $"{options.Top}";
+            options.Arguments["searchCriteria.fromCommitId"] = options.FromCommitId;
+        }
+        if (!string.IsNullOrWhiteSpace(options.ToCommitId))
+        {
+            options.Arguments["searchCriteria.toCommitId"] = options.ToCommitId;
         }
 
         return ExecuteAsync<Commit>($"git/repositories/{options.Repo}/commits", options.Arguments);
+    }
+
+    /// <summary>
+    /// Gets all commits after a specific commit ID.
+    /// </summary>
+    /// <param name="repository">Repository name or ID</param>
+    /// <param name="fromCommitId">Starting commit ID (SHA)</param>
+    /// <param name="toCommitId">Ending commit ID (optional, defaults to HEAD)</param>
+    /// <returns>List of commits after the specified commit</returns>
+    public Task<AzureDevOpsList<Commit>> GetCommitsAfterCommit(string repository, string fromCommitId, string? toCommitId = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(repository);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fromCommitId);
+
+        CommitOptions options = new()
+        {
+            Repo = repository,
+            FromCommitId = fromCommitId,
+            ToCommitId = toCommitId
+        };
+
+        return GetCommits(options);
     }
 
     public Task<AzureDevOpsList<PullRequest>> GetPullRequests(PullRequestOptions options)
