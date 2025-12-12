@@ -1,0 +1,65 @@
+Azure DevOps Commit Collector
+========================================
+Organization: dnceng
+Project: internal
+Repository: dotnet-runtime
+From Commit: a2266c728f63a494ccb6786d794da2df135030be
+Branch: release/8.0
+GitHub: dotnet/runtime
+Using DefaultAzureCredential for authentication (AzureCliCredential, ManagedIdentity, etc.)
+GitHub repository specified. Will fetch PR and approver information from GitHub.
+Successfully obtained GitHub token from 'gh' CLI
+Fetching commits after 'a2266c72...' on branch 'release/8.0'...
+Found 36 commits
+-----
+
+Commits after a2266c72...:
+  Commit                                                                                                                                                                                                       | Author / Approvers                         | Comments | Validation status  
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|----------|------------------- 
+  [[manual] Merge release/8.0-staging into release/8.0](https://github.com/dotnet/runtime/pull/122240)                                                                                                         | jozkee / jeffhandley                       |          |                    
+  [Update CI OSes](https://github.com/dotnet/runtime/pull/115502)                                                                                                                                              | richlander / mthalman, jeffhandley         |          |                    
+  [Don't assume all S_IFREG files are seekable](https://github.com/dotnet/runtime/pull/122188)                                                                                                                 | github-actions[bot] / wfurt, agocke        |          |                    
+  [Enable hotfix branding](https://github.com/dotnet/runtime/pull/120453)                                                                                                                                      | mmitche / steveisok                        |          |                    
+  [Add NuGet package dependencies](https://github.com/dotnet/runtime/pull/121996)                                                                                                                              | ellahathaway / MichaelSimons               |          |                    
+  [Bump MicrosoftDotnetSdkInternalVersion](https://dev.azure.com/dnceng/internal/_git/dotnet-runtime/commit/fe112b92124f655988e3262cf23268c6ee2ea6c4)                                                          | Alexander K├╢plinger                        |          |                    
+  [Backport Replace test certificate chain that uses RSA+SHA-1](https://dev.azure.com/dnceng/internal/_git/dotnet-runtime/commit/ee293b2fde9e9d89f796af1a5dae9bfe86bf8925)                                     | Kevin Jones                                |          |                    
+  [Add flags when the clang's major version is > 20.0](https://github.com/dotnet/runtime/pull/121150)                                                                                                          | AaronRobinsonMSFT / jkoritzinsky, tmds     |          |                    
+  [Merging internal commits for release/8.0](https://github.com/dotnet/runtime/pull/121529)                                                                                                                    | vseanreesermsft / PranavSenthilnathan      |          |                    
+  [Merge commit 'a2266c728f63a494ccb6786d794da2df135030be' into internal-merge-8.0-2025-11-11-1148](https://dev.azure.com/dnceng/internal/_git/dotnet-runtime/commit/b0eacd0ba703bd9cbeed30da27e9518e6e448864) | Sean Reeser                                |          |                    
+  [Update branding to 8.0.23](https://github.com/dotnet/runtime/pull/121347)                                                                                                                                   | vseanreesermsft / PranavSenthilnathan      |          |                    
+  [Add required MSBuild package dependencies](https://github.com/dotnet/runtime/pull/121307)                                                                                                                   | NikolaMilosavljevic / akoeplinger, ericstj |          |                    
+  [Simplify findvcvarsall.bat](https://github.com/dotnet/runtime/pull/120914)                                                                                                                                  | github-actions[bot] / jkotas               |          |                    
+  [Revert "Bump STJ and MSBuild Version"](https://github.com/dotnet/runtime/pull/121123)                                                                                                                       | steveisok / ViktorHofer                    |          |                    
+  [Stop testing with nodejs](https://github.com/dotnet/runtime/pull/120195)                                                                                                                                    | ilonatommy / maraf                         |          |                    
+
+
+-----
+
+Commits that were skipped:
+  Reason                         | Title                                                                             
+ --------------------------------|---------------------------------------------------------------------------------- 
+  author: maestrobot             | Update dependencies from dotnet/emsdk                                             
+  Skip title text: Merge branch  | [automated] Merge branch 'release/8.0' => 'release/8.0-staging'                   
+  Skip title text: Merge branch  | Merge branch 'release/8.0-staging' into merge/release/8.0-to-release/8.0-staging  
+  author: maestrobot             | Update dependencies from dotnet/hotreload-utils                                   
+  author: maestrobot             | Update dependencies from dotnet/runtime-assets                                    
+  author: maestrobot             | Update dependencies from dotnet/arcade                                            
+  author: maestrobot             | Update dependencies from dotnet/arcade                                            
+  author: maestrobot             | Update dependencies from dotnet/source-build-reference-packages                   
+  author: maestrobot             | Update dependencies from dotnet/xharness                                          
+  author: maestrobot             | Update dependencies from dotnet/cecil                                             
+  author: maestrobot             | Update dependencies from dotnet/icu                                               
+  Skip title text: Merge branch  | Merge branch 'release/8.0-staging' into merge/release/8.0-to-release/8.0-staging  
+  author: maestrobot             | Update dependencies from dotnet/hotreload-utils                                   
+  Skip title text: Merge branch  | [automated] Merge branch 'release/8.0' => 'release/8.0-staging'                   
+  author: maestrobot             | Update dependencies from dotnet/emsdk                                             
+  Skip title text: Merge branch  | Merge branch 'release/8.0-staging' into merge/release/8.0-to-release/8.0-staging  
+  author: maestrobot             | Update dependencies from dotnet/icu                                               
+  author: maestrobot             | Update dependencies from dotnet/arcade                                            
+  author: maestrobot             | Update dependencies from dotnet/runtime-assets                                    
+  author: maestrobot             | Update dependencies from dotnet/source-build-reference-packages                   
+  author: maestrobot             | Update dependencies from dotnet/xharness                                          
+
+
+-----
+

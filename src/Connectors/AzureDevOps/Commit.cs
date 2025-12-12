@@ -78,7 +78,7 @@ public class CommitOptions
     public int Top { get; set; } = -1;
     
     // Commit ID filtering
-    public string? FromCommitId { get; set; }
+    public required string FromCommitId { get; set; }
     public string? ToCommitId { get; set; }
     
     public Dictionary<string, string> Arguments { get; set; } = new Dictionary<string, string>();

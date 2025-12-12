@@ -139,21 +139,22 @@ public class AzureDevOpsCommunicator : IDisposable
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        // Set version type and version if branch name is specified
-        if (!string.IsNullOrWhiteSpace(options.BranchName))
-        {
-            options.Arguments["searchCriteria.itemVersion.versionType"] = "branch";
-            options.Arguments["searchCriteria.itemVersion.version"] = options.BranchName;
-        }
+        // Use compareVersion instead of itemVersion for proper commit range queries
+        options.Arguments["searchCriteria.compareVersion.versionType"] = "branch";
+        options.Arguments["searchCriteria.compareVersion.version"] = options.BranchName;
         
-        // Set from/to commit IDs for filtering
-        if (!string.IsNullOrWhiteSpace(options.FromCommitId))
+        // Use compareVersion instead of itemVersion for proper commit range queries
+        options.Arguments["searchCriteria.itemVersion.versionType"] = "commit";
+        options.Arguments["searchCriteria.itemVersion.version"] = options.FromCommitId;
+        
+        // Set top limit if specified, otherwise use maximum allowed (10000)
+        if (options.Top > 0)
         {
-            options.Arguments["searchCriteria.fromCommitId"] = options.FromCommitId;
+            options.Arguments["searchCriteria.$top"] = options.Top.ToString();
         }
-        if (!string.IsNullOrWhiteSpace(options.ToCommitId))
+        else
         {
-            options.Arguments["searchCriteria.toCommitId"] = options.ToCommitId;
+            options.Arguments["searchCriteria.$top"] = "100";
         }
 
         return ExecuteAsync<Commit>($"git/repositories/{options.Repo}/commits", options.Arguments);
@@ -165,8 +166,9 @@ public class AzureDevOpsCommunicator : IDisposable
     /// <param name="repository">Repository name or ID</param>
     /// <param name="fromCommitId">Starting commit ID (SHA)</param>
     /// <param name="toCommitId">Ending commit ID (optional, defaults to HEAD)</param>
+    /// <param name="branchName">Branch name to filter commits (optional)</param>
     /// <returns>List of commits after the specified commit</returns>
-    public Task<AzureDevOpsList<Commit>> GetCommitsAfterCommit(string repository, string fromCommitId, string? toCommitId = null)
+    public Task<AzureDevOpsList<Commit>> GetCommitsAfterCommit(string repository, string fromCommitId, string? toCommitId = null, string? branchName = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
         ArgumentException.ThrowIfNullOrWhiteSpace(fromCommitId);
@@ -175,7 +177,8 @@ public class AzureDevOpsCommunicator : IDisposable
         {
             Repo = repository,
             FromCommitId = fromCommitId,
-            ToCommitId = toCommitId
+            ToCommitId = toCommitId,
+            BranchName = branchName ?? string.Empty
         };
 
         return GetCommits(options);

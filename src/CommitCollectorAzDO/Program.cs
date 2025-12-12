@@ -31,8 +31,7 @@ public static class Program
             IsRequired = true
         };
         Option<string?> optionGitHubOrg = new(["-github-org", "-go"], "The GitHub organization name (optional, for fetching PR details).");
-        Option<string?> optionGitHubRepo = new(["-github-repo", "-gr"], "The GitHub repository name (optional, for fetching PR details).");
-        Option<bool> optionDebug = new(["--debug", "-d"], () => false, "Break execution at the beginning to attach a debugger.");
+        Option<string?> optionGitHubRepo = new(["-github-repo", "-gr"], "The GitHub repository name (optional, for fetching PR details).");        Option<string?> optionBranch = new(["--branch", "-b"], "The branch name to filter commits (optional, defaults to all branches).");        Option<bool> optionDebug = new(["--debug", "-d"], () => false, "Break execution at the beginning to attach a debugger.");
 
         rootCommand.Add(optionFromCommit);
         rootCommand.Add(optionToCommit);
@@ -41,6 +40,7 @@ public static class Program
         rootCommand.Add(optionRepo);
         rootCommand.Add(optionGitHubOrg);
         rootCommand.Add(optionGitHubRepo);
+        rootCommand.Add(optionBranch);
         rootCommand.Add(optionDebug);
 
         rootCommand.SetHandler(async (context) =>
@@ -52,6 +52,7 @@ public static class Program
             var repo = context.ParseResult.GetValueForOption(optionRepo);
             var githubOrg = context.ParseResult.GetValueForOption(optionGitHubOrg);
             var githubRepo = context.ParseResult.GetValueForOption(optionGitHubRepo);
+            var branch = context.ParseResult.GetValueForOption(optionBranch);
             var debug = context.ParseResult.GetValueForOption(optionDebug);
             
             ConsoleLog.WriteInfo($"Azure DevOps Commit Collector");
@@ -63,6 +64,10 @@ public static class Program
             if (!string.IsNullOrWhiteSpace(toCommit))
             {
                 ConsoleLog.WriteInfo($"To Commit: {toCommit}");
+            }
+            if (!string.IsNullOrWhiteSpace(branch))
+            {
+                ConsoleLog.WriteInfo($"Branch: {branch}");
             }
             if (!string.IsNullOrWhiteSpace(githubOrg) && !string.IsNullOrWhiteSpace(githubRepo))
             {
@@ -99,7 +104,7 @@ public static class Program
             }
 
             CommitCollectorAzDO collector = CommitCollectorAzDO.Create(org, project, repo, githubOrg, githubRepo);
-            await collector.RunAsync(fromCommit!, toCommit);
+            await collector.RunAsync(fromCommit!, toCommit, branch);
         });
 
         await rootCommand.InvokeAsync(args);

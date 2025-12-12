@@ -91,11 +91,11 @@ public partial class CommitCollectorAzDO
         return new CommitCollectorAzDO(communicator, organization, project, repository, githubOrg, githubRepo, githubFetcher);
     }
 
-    public async Task RunAsync(string fromCommitId, string? toCommitId = null)
+    public async Task RunAsync(string fromCommitId, string? toCommitId = null, string? branchName = null)
     {
-        ConsoleLog.WriteInfo($"Fetching commits after '{fromCommitId[..8]}...'{(toCommitId != null ? $" up to '{toCommitId[..8]}...'" : "")}...");
+        ConsoleLog.WriteInfo($"Fetching commits after '{fromCommitId[..8]}...'{(toCommitId != null ? $" up to '{toCommitId[..8]}...'" : "")}{(!string.IsNullOrWhiteSpace(branchName) ? $" on branch '{branchName}'" : "")}...");
         
-        AzureDevOpsList<Commit> commits = await Communicator.GetCommitsAfterCommit(_repository, fromCommitId, toCommitId);
+        AzureDevOpsList<Commit> commits = await Communicator.GetCommitsAfterCommit(_repository, fromCommitId, toCommitId, branchName);
         
         ConsoleLog.WriteSuccess($"Found {commits.Count} commits");
 
